@@ -16,6 +16,7 @@ on early-init
 on init
     # start watchdogd
     mkdir /metadata 0770 root root
+    chmod 0666 /dev/gpiomem
 
     # for adobe reader mobile
     export RK_ADOBE_DE_MOBILE 1
