@@ -238,13 +238,18 @@ else # tablet
         frameworks/native/data/etc/tablet_core_hardware.xml:system/etc/permissions/tablet_core_hardware.xml 
 endif
 
+PRODUCT_PACKAGES += \
+	libjni_pinyinime
+
 # Live Wallpapers
+ifneq ($(strip $(TARGET_BOARD_PLATFORM_PRODUCT)), box)
 PRODUCT_PACKAGES += \
     LiveWallpapersPicker \
     NoiseField \
     PhaseBeam \
     librs_jni \
     libjni_pinyinime
+endif
 
 # HAL
 ifneq ($(strip $(TARGET_BOARD_PLATFORM_PRODUCT)), vr)
@@ -570,6 +575,20 @@ $(call inherit-product-if-exists, vendor/widevine/L1/widevine_level1.mk)
 endif
 endif
 
+#for enable optee support
+ifeq ($(strip $(PRODUCT_HAVE_OPTEE)),true)
+PRODUCT_PROPERTY_OVERRIDES += \
+       ro.enable.optee=true
+
+ifeq ($(strip $(PRODUCT_SYSTEM_VERITY)),true)
+PRODUCT_COPY_FILES += \
+       device/rockchip/common/init.optee_verify.rc:root/init.optee.rc
+else
+PRODUCT_COPY_FILES += \
+       device/rockchip/common/init.optee.rc:root/init.optee.rc
+endif
+endif
+
 #ro.product.first_api_level indicates the first api level, device has been commercially launced on.
 PRODUCT_PROPERTY_OVERRIDES += \
     ro.product.first_api_level=23
@@ -631,7 +650,14 @@ ifeq ($(strip $(BOARD_USE_LOW_MEM)),true)
 PRODUCT_COPY_FILES += \
 	device/rockchip/common/lowmem_package_filter.xml:system/etc/lowmem_package_filter.xml
 PRODUCT_PROPERTY_OVERRIDES += \
-	ro.config.low_ram=true
+	ro.config.low_ram=true \
+	sys.video.refFrameMode=1 \
+	sys.video.maxMemCapacity=165 \
+	sys.video.netBuffer=20 \
+	dalvik.vm.image-dex2oat-Xms=32m \
+	dalvik.vm.image-dex2oat-Xmx=32m \
+	dalvik.vm.dex2oat-Xms=32m \
+	dalvik.vm.dex2oat-Xmx=256m
 endif
 
 ifeq ($(strip $(TARGET_BOARD_PLATFORM_PRODUCT)), vr)
@@ -643,6 +669,12 @@ endif
 PRODUCT_COPY_FILES += \
 	device/rockchip/common/neon_transform/lib/librockchipxxx.so:system/lib/librockchipxxx.so \
 	device/rockchip/common/neon_transform/lib64/librockchipxxx.so:system/lib64/librockchipxxx.so
+
+# support eecolor hdr api
+PRODUCT_COPY_FILES += \
+        device/rockchip/common/eecolorapi/lib/libeecolorapi.so:system/lib/libeecolorapi.so \
+        device/rockchip/common/eecolorapi/lib64/libeecolorapi.so:system/lib64/libeecolorapi.so
+
 
 #if force app can see udisk
 ifeq ($(strip $(BOARD_FORCE_UDISK_VISIBLE)),true)

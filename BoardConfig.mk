@@ -109,6 +109,10 @@ TARGET_NO_BOOTLOADER ?= true
 BOARD_USE_LOW_MEM ?= false
 DEVICE_PACKAGE_OVERLAYS += device/rockchip/common/overlay
 
+ifeq ($(strip $(BOARD_USE_LOW_MEM)), true)
+DEVICE_PACKAGE_OVERLAYS += device/rockchip/common/overlay_lowram
+endif
+
 #######for target product ########
 ifeq ($(TARGET_BOARD_PLATFORM_PRODUCT),box)
 DEVICE_PACKAGE_OVERLAYS += device/rockchip/common/overlay_screenoff
@@ -211,9 +215,6 @@ BUILD_BOX_WITH_GOOGLE_MARKET ?= false
 BUILD_WITH_GOOGLE_MARKET ?= false
 BUILD_WITH_GOOGLE_MARKET_ALL ?= false
 BUILD_WITH_GOOGLE_FRP ?= false
-
-#widevine configuration
-BUILD_WITH_WIDEVINE ?= false
 
 # face lock
 BUILD_WITH_FACELOCK ?= false
@@ -336,3 +337,6 @@ BOARD_USB_ALLOW_DEFAULT_MTP ?= false
 
 # Set to force wallpaper fix screen only
 BOARD_USE_FIX_WALLPAPER ?= false
+
+# SDBoot: Format data.
+RECOVERY_SDBOOT_FORMATE_DATA ?= false
