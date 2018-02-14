@@ -50,6 +50,7 @@ PRODUCT_PROPERTY_OVERRIDES += \
 
 # Filesystem management tools
 PRODUCT_PACKAGES += \
+    mkfs_host.f2fs \
     fsck.f2fs \
     mkfs.f2fs \
     fsck_f2fs
@@ -114,6 +115,7 @@ PRODUCT_COPY_FILES += \
     vendor/rockchip/common/wifi/ssv6xxx/p2p_supplicant.conf:system/etc/wifi/p2p_supplicant.conf \
 
 PRODUCT_PACKAGES += \
+    iperf \
     libiconv \
     hostapd \
     wpa_supplicant \
@@ -694,15 +696,13 @@ PRODUCT_PROPERTY_OVERRIDES += \
     ro.safemode.disabled=true
 endif
 
-ifeq ($(strip $(BOARD_ENABLE_3G_DONGLE)),true)
-ifeq ($(strip $(PRODUCT_BUILD_MODULE)), px3car)
+ifeq ($(strip $(BOARD_HAVE_DONGLE)),true)
+ifeq ($(strip $(TARGET_ARCH)), arm64)
 PRODUCT_PROPERTY_OVERRIDES += \
-    persist.enable.3g.dongle=true \
-    rild.libpath=/system/lib/libril-rk29-dataonly.so
+    rild.libpath=/system/lib64/libril-rk29-dataonly.so
 else
 PRODUCT_PROPERTY_OVERRIDES += \
-    persist.enable.3g.dongle=true \
-    rild.libpath=/system/lib64/libril-rk29-dataonly.so
+    rild.libpath=/system/lib/libril-rk29-dataonly.so
 endif
 endif
 
