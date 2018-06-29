@@ -619,7 +619,7 @@ PRODUCT_COPY_FILES += \
 endif
 
 # hdmi cec
-ifeq ($(strip $(TARGET_BOARD_PLATFORM_PRODUCT)), box)
+ifeq ($(strip $(TARGET_BOARD_PLATFORM_PRODUCT)), tablet)
 PRODUCT_COPY_FILES += \
 	frameworks/native/data/etc/android.hardware.hdmi.cec.xml:system/etc/permissions/android.hardware.hdmi.cec.xml
 PRODUCT_PROPERTY_OVERRIDES += ro.hdmi.device_type=4
