@@ -107,6 +107,9 @@ PRODUCT_COPY_FILES += \
 	device/rockchip/common/ff420030_pwm.kl:system/usr/keylayout/ff420030_pwm.kl
 
 PRODUCT_COPY_FILES += \
+	device/rockchip/common/init.asus.rc:root/init.asus.rc
+
+PRODUCT_COPY_FILES += \
     hardware/broadcom/wlan/bcmdhd/config/wpa_supplicant_overlay.conf:system/etc/wifi/wpa_supplicant_overlay.conf \
     hardware/broadcom/wlan/bcmdhd/config/p2p_supplicant_overlay.conf:system/etc/wifi/p2p_supplicant_overlay.conf
 
@@ -758,3 +761,4 @@ endif
 #public.libraries.txt
 PRODUCT_COPY_FILES += \
 	device/rockchip/common/public.libraries.vendor.txt:$(TARGET_COPY_OUT_VENDOR)/etc/public.libraries.txt
+

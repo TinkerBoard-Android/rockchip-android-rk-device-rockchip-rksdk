@@ -6,6 +6,8 @@ import init.${ro.board.platform}.rc
 import init.${ro.target.product}.rc
 import init.car.rc
 import init.optee.rc
+import init.asus.rc
+
 on post-fs
     insmod /system/lib/modules/ump.ko
     insmod /system/lib/modules/mali.ko

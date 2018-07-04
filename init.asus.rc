@@ -1,0 +1,9 @@
+service asuscustomize /system/bin/sh /system/etc/init.asus.sh
+    seclabel u:r:asuscustomize:s0
+    class core
+    user root
+    oneshot
+    disabled
+
+on early-boot
+    start asuscustomize
