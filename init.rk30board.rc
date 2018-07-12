@@ -232,6 +232,23 @@ on property:ro.boot.noril=true
     setprop ro.radio.noril true
     stop ril-daemon
 
+on property:persist.radio.ril=*
+    stop ril-default
+    stop ril-ec25
+    stop ril-slm750
+    start ril-${persist.radio.ril}
+
+on property:persist.radio.ril=false
+    stop ril-default
+    stop ril-ec25
+    stop ril-slm750
+
+on property:persist.radio.pppd.slm750=false
+    stop pppd_gprs
+
+on property:persist.radio.pppd.slm750=true
+    start pppd_gprs
+
 # set ro.serialno
 on property:sys.serialno=*
     setprop ro.serialno ${sys.serialno}
