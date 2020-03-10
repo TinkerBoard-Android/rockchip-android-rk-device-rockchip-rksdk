@@ -25,3 +25,8 @@ get_prop(system_app,drm_prop)
 get_prop(system_app,media_prop)
 set_prop(system_app,system_prop)
 get_prop(system_app,ctsgts_prop)
+
+# for AsusDebugger socket
+allow system_app asusdbugd_socket:sock_file write;
+allow system_app asus-dbug-d:unix_stream_socket connectto;
+allow system_app asusdbug_prop:file { read getattr open };

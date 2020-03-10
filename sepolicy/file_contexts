@@ -155,3 +155,7 @@
 
 #for recovery
 /backup(/.*)?               u:object_r:system_file:s0
+
+# asus-debugger-d
+/system/bin/asus-debugger-d     u:object_r:asus-dbug-d_exec:s0
+/dev/socket/asus-debugger       u:object_r:asusdbugd_socket:s0

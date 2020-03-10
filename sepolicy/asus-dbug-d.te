@@ -1,0 +1,82 @@
+# asus-dbug-d
+type asus-dbug-d, domain;
+type asus-dbug-d_exec, exec_type, file_type;
+init_daemon_domain(asus-dbug-d)
+
+# allow
+unix_socket_connect(asus-dbug-d, property, init)
+allow asus-dbug-d kernel:system { syslog_read syslog_mod };
+allow asus-dbug-d self:packet_socket create_socket_perms;
+allow asus-dbug-d self:process execmem;
+allow asus-dbug-d self:rawip_socket { getopt create };
+allow asus-dbug-d self:udp_socket { create ioctl };
+
+# socket
+allow asus-dbug-d asusdbugd_socket:sock_file unlink;
+allow asus-dbug-d socket_device:dir { write remove_name add_name };
+allow asus-dbug-d socket_device:sock_file create;
+
+# sdcard
+allow asus-dbug-d { mnt_user_file storage_file }:dir { getattr search };
+allow asus-dbug-d { mnt_user_file storage_file }:lnk_file { getattr read };
+
+# property
+allow asus-dbug-d asusdbug_prop:property_service set;
+allow asus-dbug-d radio_prop:property_service set;
+allow asus-dbug-d audio_prop:property_service set;
+allow asus-dbug-d system_prop:property_service set;
+
+# file
+#allow asus-dbug-d device:chr_file { read write ioctl open };
+allow asus-dbug-d fuse:dir create_dir_perms;
+allow asus-dbug-d fuse:file create_file_perms;
+allow asus-dbug-d logcat_exec:file execute_no_trans;
+allow asus-dbug-d shell_exec:file x_file_perms;
+#allow asus-dbug-d su_exec:file x_file_perms;
+allow asus-dbug-d system_file:file x_file_perms;
+allow asus-dbug-d unlabeled:filesystem getattr;
+allow asus-dbug-d vdc_exec:file x_file_perms;
+allow asus-dbug-d zygote_exec:file x_file_perms;
+allow asus-dbug-d tty_device:chr_file { setattr rw_file_perms };
+allow asus-dbug-d system_app_data_file:dir getattr;
+allow asus-dbug-d cache_file:dir getattr;
+allow asus-dbug-d cache_recovery_file:dir { read getattr open };
+allow asus-dbug-d cache_recovery_file:file { read getattr open };
+
+
+# log
+read_logd(asus-dbug-d)
+control_logd(asus-dbug-d)
+allow asus-dbug-d pstorefs:dir { search read open };
+allow asus-dbug-d pstorefs:file r_file_perms;
+allow asus-dbug-d self:capability { sys_nice dac_override fsetid fowner chown};
+allow asus-dbug-d self:capability2 syslog;
+#userdebug_or_eng(`
+#allow asus-dbug-d log_file:dir rw_dir_perms;
+#allow asus-dbug-d log_file:file create_file_perms;
+#')
+allow asus-dbug-d aplog_data_file:dir { read open };
+
+# tcpdump
+allow asus-dbug-d self:capability { net_raw setuid setgid };
+
+# shell
+allow asus-dbug-d shell_exec:file rx_file_perms;
+
+# rm /factory files
+#allow asus-dbug-d factory_file:dir { search write remove_name };
+#allow asus-dbug-d factory_file:file { getattr open read unlink };
+
+# servicemanager
+binder_use(asus-dbug-d)
+# mediaserver
+binder_call(mediaserver, asus-dbug-d)
+# radio
+binder_call(radio, asus-dbug-d)
+# surfaceflinger
+binder_call(surfaceflinger, asus-dbug-d)
+# system_server
+binder_call(system_server, asus-dbug-d)
+
+#toolbox_exec
+allow asus-dbug-d toolbox_exec:file { read getattr open execute execute_no_trans };

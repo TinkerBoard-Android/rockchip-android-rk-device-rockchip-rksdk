@@ -9,3 +9,17 @@ persist.cts_gts.        u:object_r:ctsgts_prop:s0
 pppoe.                  u:object_r:pppoe_prop:s0
 persist.ppp             u:object_r:pppoe_prop:s0
 ro.secureboot           u:object_r:secureboot_prop:s0
+
+# For asus-dbug-d properties
+persist.asus.mupload.enable        u:object_r:asusdbug_prop:s0
+persist.bt.debug                   u:object_r:asusdbug_prop:s0
+persist.asus.autoupload.enable     u:object_r:asusdbug_prop:s0
+persist.gps.LogEnabled             u:object_r:asusdbug_prop:s0
+persist.uart.switch                u:object_r:asusdbug_prop:s0
+persist.radio.run_debugger         u:object_r:asusdbug_prop:s0
+persist.asus.autoupload.bat        u:object_r:asusdbug_prop:s0
+persist.iot.log.enabled            u:object_r:asusdbug_prop:s0
+persist.ds.log.enabled             u:object_r:asusdbug_prop:s0
+persist.sensor.log.enabled         u:object_r:asusdbug_prop:s0
+persist.slam.log.enabled           u:object_r:asusdbug_prop:s0
+persist.slu.debug                  u:object_r:asusdbug_prop:s0
