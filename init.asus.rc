@@ -7,3 +7,22 @@ service asuscustomize /system/bin/sh /system/etc/init.asus.sh
 
 on early-boot
     start asuscustomize
+
+# asus-debugger-d
+service asus-dbug-d /system/bin/asus-debugger-d
+    disabled
+
+on property:sys.asus_debugger_running=1
+    start asus-dbug-d
+
+on property:persist.sys.run_debugger=1
+    start asus-dbug-d
+
+on property:sys.asus_debugger_running=3
+   stop asus-dbug-d
+
+on property:sys.asus_debugger_running=1
+    restorecon /dev/socket/asus-debugger
+
+on property:sys.asus_debugger_running=2
+    restorecon /dev/socket/asus-debugger
