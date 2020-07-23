@@ -49,7 +49,7 @@ else
     exit 1
 fi
 
-#cd u-boot && make ARCHV=$ARCHV distclean && make ARCHV=$ARCHV $UBOOT_DEFCONFIG && make ARCHV=$ARCHV -j$JOBS && cd -
+cd u-boot && make ARCHV=$ARCHV distclean && make ARCHV=$ARCHV $UBOOT_DEFCONFIG && make ARCHV=$ARCHV -j$JOBS && cd -
 if [ $? -eq 0 ]; then
     echo "Build uboot ok!"
 else
@@ -66,7 +66,7 @@ fi
 
 # build kernel
 echo "Start build kernel"
-#cd kernel && make ARCH=$ARCH distclean && make ARCH=$ARCH $KERNEL_DEFCONFIG && make ARCH=$ARCH $KERNEL_DTS.img -j$JOBS && cd -
+cd kernel && make ARCH=$ARCH distclean && make ARCH=$ARCH $KERNEL_DEFCONFIG && make ARCH=$ARCH $KERNEL_DTS.img -j$JOBS && cd -
 if [ $? -eq 0 ]; then
     echo "Build kernel ok!"
 else
