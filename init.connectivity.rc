@@ -20,12 +20,10 @@ on boot
     setprop ro.bt.bdaddr_path "/data/misc/bluetooth/bdaddr"
 
     chmod 0660 /dev/ttyS0
-    chmod 0660 /dev/ttyS1
     chmod 0660 /dev/vflash
     chmod 0664 /dev/vendor_storage
     chown bluetooth net_bt_stack /dev/vflash
     chown bluetooth net_bt_stack /dev/vendor_storage
-    chown bluetooth net_bt_stack /dev/ttyS1
     chown bluetooth net_bt_stack /dev/ttyS0
     chown bluetooth net_bt_stack /sys/class/rfkill/rfkill0/type
     chown bluetooth net_bt_stack /sys/class/rfkill/rfkill0/state

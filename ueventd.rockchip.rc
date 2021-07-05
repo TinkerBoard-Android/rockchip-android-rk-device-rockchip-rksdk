@@ -49,7 +49,6 @@
 /dev/compassirq           0660   system     system
 
 # for GPS
-#/dev/ttyS3                0600   gps        gps
 /dev/gps                  0660   gps        gps
 
 # for BT
@@ -407,3 +406,32 @@
 /dev/i2c-1 0660 system system
 #for ovr
 /dev/ovr0		  0664   system          system
+
+# For 40 PIN gpio
+/sys/devices/platform/pinctrl/gpio/gpio* active_low 0666 system system
+/sys/devices/platform/pinctrl/gpio/gpio* direction 0666 system system
+/sys/devices/platform/pinctrl/gpio/gpio* edge 0666 system system
+/sys/devices/platform/pinctrl/gpio/gpio* value 0666 system system
+
+# For 40 PIN uart
+/dev/ttyS1 0666 system system
+/dev/ttyS2 0666 system system
+/dev/ttyS3 0666 system system
+/dev/ttyS4 0666 system system
+
+# For 40 PIN PWM
+/sys/devices/platform/*.pwm/pwm/pwmchip*/pwm* capture    0444 system system
+/sys/devices/platform/*.pwm/pwm/pwmchip*/pwm* duty_cycle 0666 system system
+/sys/devices/platform/*.pwm/pwm/pwmchip*/pwm* enable     0666 system system
+/sys/devices/platform/*.pwm/pwm/pwmchip*/pwm* period     0666 system system
+/sys/devices/platform/*.pwm/pwm/pwmchip*/pwm* polarity   0666 system system
+
+# For 40 PIN I2C
+/dev/i2c-1 0666 system system
+/dev/i2c-4 0666 system system
+
+# For 40 PIN SPI
+/dev/spidev0.0 0666 system system
+/dev/spidev0.1 0666 system system
+/dev/spidev2.0 0666 system system
+/dev/spidev2.1 0666 system system

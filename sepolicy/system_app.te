@@ -30,3 +30,6 @@ get_prop(system_app,ctsgts_prop)
 allow system_app asusdbugd_socket:sock_file write;
 allow system_app asus-dbug-d:unix_stream_socket connectto;
 allow system_app asusdbug_prop:file { read getattr open };
+
+# for mraa
+allow system_app sysfs_gpio:file rw_file_perms;

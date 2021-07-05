@@ -159,3 +159,6 @@
 # asus-debugger-d
 /system/bin/asus-debugger-d     u:object_r:asus-dbug-d_exec:s0
 /dev/socket/asus-debugger       u:object_r:asusdbugd_socket:s0
+
+#for mraa
+/sys/devices/platform/pinctrl/gpio(/.*)? u:object_r:sysfs_gpio:s0

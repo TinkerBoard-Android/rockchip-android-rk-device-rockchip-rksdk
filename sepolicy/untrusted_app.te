@@ -1,5 +1,5 @@
 allow untrusted_app surfaceflinger:fifo_file rw_file_perms;
-allow untrusted_app gpu_device:chr_file rw_file_perms; 
+allow untrusted_app gpu_device:chr_file rw_file_perms;
 allow untrusted_app app_data_file:dir { search };
 
 allow untrusted_app storage_stub_file:dir { getattr };
@@ -17,3 +17,12 @@ allow untrusted_app { domain -init -kernel}:file { read getattr open };
 get_prop(untrusted_app,ctsgts_prop)
 allow untrusted_app system_data_file:file r_file_perms;
 allow untrusted_app sysfs_lut:file { getattr setattr open write };
+
+# For mraa
+allow untrusted_app sysfs_gpio:dir search;
+allow untrusted_app sysfs_gpio:file open;
+allow untrusted_app sysfs_gpio:file write;
+allow untrusted_app sysfs_gpio:file read;
+allow untrusted_app sysfs:file { open read };
+allow untrusted_app device:chr_file ioctl;
+allow untrusted_app serial_device:chr_file { ioctl open read write };
