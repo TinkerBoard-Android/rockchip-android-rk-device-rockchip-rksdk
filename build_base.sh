@@ -74,7 +74,7 @@ else
     exit 1
 fi
 # build wifi ko
-#source device/rockchip/common/build_wifi_ko.sh
+source device/rockchip/common/build_wifi_ko.sh
 
 ASUS_CSC_BUILD_NUMBER=WW_"$BUILD_NUMBER"
 ASUS_PROJECT_VERSION=$BUILD_NUMBER
