@@ -1,14 +1,17 @@
 #!/bin/bash
 
-if [[ -z $ARCH || -z $LUNCH || -z $UBOOT_DEFCONFIG || -z $KERNEL_DEFCONFIG || -z $KERNEL_DTS || -z $RELEASE_NAME ]];then
+if [[ -z $ARCH || -z $LUNCH || -z $UBOOT_DEFCONFIG || -z $KERNEL_DEFCONFIG || -z $KERNEL_DTS ]];then
     echo "Missing some mandatory args, exit!"
     echo "ARCH=$ARCH"
     echo "LUNCH=$LUNCH"
     echo "UBOOT_DEFCONFIG=$UBOOT_DEFCONFIG"
     echo "KERNEL_DEFCONFIG=$KERNEL_DEFCONFIG"
     echo "KERNEL_DTS=$KERNEL_DTS"
-    echo "RELEASE_NAME=$RELEASE_NAME"
     exit 1
+fi
+
+if [[ -n $BUILD_NUMBER ]]; then
+  RELEASE_NAME=Tinker_Board-AndroidN-v"$BUILD_NUMBER"
 fi
 
 source build/envsetup.sh >/dev/null && setpaths
@@ -33,10 +36,12 @@ WIDEVINE_LEVEL=`get_build_var BOARD_WIDEVINE_OEMCRYPTO_LEVEL`
 #PLATFORM_VERSION=`get_build_var PLATFORM_VERSION`
 #DATE=$(date  +%Y%m%d.%H%M)
 #STUB_PATH=Image/"$KERNEL_DTS"_"$PLATFORM_VERSION"_"$DATE"_RELEASE_TEST
-STUB_PATH=IMAGE/"$RELEASE_NAME"
 #STUB_PATH="$(echo $STUB_PATH | tr '[:lower:]' '[:upper:]')"
-export STUB_PATH=$PROJECT_TOP/$STUB_PATH
-export STUB_PATCH_PATH=$STUB_PATH/PATCHES
+if [[ -n $RELEASE_NAME ]]; then
+  STUB_PATH=IMAGE/"$RELEASE_NAME"
+  export STUB_PATH=$PROJECT_TOP/$STUB_PATH
+  export STUB_PATCH_PATH=$STUB_PATH/PATCHES
+fi
 
 # build uboot
 echo "start build uboot"
@@ -76,17 +81,15 @@ fi
 # build wifi ko
 source device/rockchip/common/build_wifi_ko.sh
 
-ASUS_CSC_BUILD_NUMBER=WW_"$BUILD_NUMBER"
-ASUS_PROJECT_VERSION=$BUILD_NUMBER
 
 # build android
 echo "start build android"
 make installclean
-if [ "$BUILD_OTA" = true ] ; then
-	echo "generate ota package"
-	make BUILD_NUMBER=$BUILD_NUMBER ASUS_CSC_BUILD_NUMBER=$ASUS_CSC_BUILD_NUMBER ASUS_PROJECT_VERSION=$ASUS_PROJECT_VERSION otapackage -j$JOBS
+if [ "$BUILD_OTA" = true ]; then
+  echo "Will build the OTA package......."
+  make BUILD_NUMBER=$BUILD_NUMBER ASUS_CSC_BUILD_NUMBER=WW_$BUILD_NUMBER ASUS_PROJECT_VERSION=$BUILD_NUMBER otapackage -j$JOBS
 else
-	make BUILD_NUMBER=$BUILD_NUMBER ASUS_CSC_BUILD_NUMBER=$ASUS_CSC_BUILD_NUMBER ASUS_PROJECT_VERSION=$ASUS_PROJECT_VERSION -j$JOBS
+  make BUILD_NUMBER=$BUILD_NUMBER ASUS_CSC_BUILD_NUMBER=WW_$BUILD_NUMBER ASUS_PROJECT_VERSION=$BUILD_NUMBER -j$JOBS
 fi
 
 if [ $? -eq 0 ]; then
@@ -98,26 +101,39 @@ fi
 
 # mkimage.sh
 echo "make and copy android images"
-if [ "$BUILD_OTA" = true ] ; then
-    INTERNAL_OTA_PACKAGE_OBJ_TARGET=obj/PACKAGING/target_files_intermediates/$TARGET_PRODUCT-target_files-$BUILD_NUMBER.zip
-    INTERNAL_OTA_PACKAGE_TARGET=$TARGET_PRODUCT-ota-$BUILD_NUMBER.zip
-    echo "generate ota package"
-    ./mkimage.sh ota
-    cp $OUT/$INTERNAL_OTA_PACKAGE_TARGET $IMAGE_PATH/
-    cp $OUT/$INTERNAL_OTA_PACKAGE_OBJ_TARGET $IMAGE_PATH/
-	sha256sum $IMAGE_PATH/$TARGET_PRODUCT-target_files-$BUILD_NUMBER.zip > $IMAGE_PATH/$TARGET_PRODUCT-target_files-$BUILD_NUMBER.zip.sha256sum
-	sha256sum $IMAGE_PATH/$TARGET_PRODUCT-ota-$BUILD_NUMBER.zip > $IMAGE_PATH/$TARGET_PRODUCT-ota-$BUILD_NUMBER.zip.sha256sum
+if [ "$BUILD_OTA" = true ]; then
+  INTERNAL_OTA_PACKAGE_OBJ_TARGET=$(find $OUT/obj/PACKAGING/target_files_intermediates/$TARGET_PRODUCT-target_files-*.zip)
+  INTERNAL_OTA_PACKAGE_TARGET=$(find $OUT/$TARGET_PRODUCT-ota-*.zip)
+
+  echo "generate ota package"
+  ./mkimage.sh ota
+  cp $INTERNAL_OTA_PACKAGE_TARGET $IMAGE_PATH/
+  cp $INTERNAL_OTA_PACKAGE_OBJ_TARGET $IMAGE_PATH/
+
+   # Build incremental update
+  if [[ -n $PREVIOUS_TARGET_FILES ]]; then
+    echo "Build incremental updates......."
+    CURRENT_TARGET_FILES=$(find $IMAGE_PATH/$TARGET_PRODUCT-target_files-*.zip)
+    CURRENT_TARGET_FILES_FILENAME=$(basename $CURRENT_TARGET_FILES)
+    PREVIOUS_TARGET_FILES_FILENAME=$(basename $PREVIOUS_TARGET_FILES)
+    ./build/tools/releasetools/ota_from_target_files -v -i $PREVIOUS_TARGET_FILES -p out/host/linux-x86 -k build/target/product/security/testkey $CURRENT_TARGET_FILES $IMAGE_PATH/Tinker_Board-AndroidN-Incremental-Update-${CURRENT_TARGET_FILES_FILENAME%.*}-from-${PREVIOUS_TARGET_FILES_FILENAME%.*}.zip
+    if [ $? -eq 0 ]; then
+      echo "Succeeded to build the incremental update."
+    else
+      echo "Failed to build the incremental update."
+      exit 1
+    fi
+  fi
 else
-	./mkimage.sh
+  ./mkimage.sh
 fi
 
 if [ $? -eq 0 ]; then
-    echo "Make image ok!"
+  echo "Make image ok!"
 else
-    echo "Make image failed!"
-    exit 1
+  echo "Make image failed!"
+  exit 1
 fi
-
 
 mkdir -p $PACK_TOOL_DIR/rockdev/Image/
 cp -f $IMAGE_PATH/* $PACK_TOOL_DIR/rockdev/Image/
@@ -135,6 +151,11 @@ cd -
 mv $PACK_TOOL_DIR/rockdev/update.img $IMAGE_PATH/
 rm $PACK_TOOL_DIR/rockdev/Image -rf
 
+echo "Generate the image to be flashed via UMS mode......."
+device/rockchip/common/programmer_image_tool -i $IMAGE_PATH/update.img -t emmc -o $IMAGE_PATH/
+mv $IMAGE_PATH/out_image.bin $IMAGE_PATH/sdcard_full.img
+
+if [[ -n $STUB_PATH ]]; then
 mkdir -p $STUB_PATH
 
 #Generate patches
@@ -155,17 +176,19 @@ echo "UBOOT:  defconfig: $UBOOT_DEFCONFIG" >> $STUB_PATH/build_cmd_info
 echo "KERNEL: defconfig: $KERNEL_DEFCONFIG, dts: $KERNEL_DTS" >> $STUB_PATH/build_cmd_info
 echo "ANDROID:$DEVICE-$BUILD_VARIANT" >> $STUB_PATH/build_cmd_info
 
-# Delta package
-if [ $TARGET_FILES_OLD ]; then
-	echo "Start to build delta package..."
-	TARGET_FILES_NEW=$STUB_PATH/IMAGES/$TARGET_PRODUCT-target_files-$BUILD_NUMBER.zip
-	TARGET_FILES_FILENAME_NEW=$(basename $TARGET_FILES_NEW)
-	TARGET_FILES_FILENAME_OLD=$(basename $TARGET_FILES_OLD)
-	./build/tools/releasetools/ota_from_target_files -v -i $TARGET_FILES_OLD -p out/host/linux-x86 -k build/target/product/security/testkey $TARGET_FILES_NEW $STUB_PATH/IMAGES/Tinker_Board-AndroidN-Delta-${TARGET_FILES_FILENAME_NEW%.*}-from-${TARGET_FILES_FILENAME_OLD%.*}.zip
-	if [ $? -eq 0 ]; then
-	    echo "Succeed to generate the delta package."
-	else
-	    echo "Fail to generate the delta package."
-	    exit 1
-	fi
+  mv $STUB_PATH/IMAGES/sdcard_full.img $STUB_PATH/$RELEASE_NAME.img
+  cd $STUB_PATH
+  zip -j -m -T $RELEASE_NAME.zip $RELEASE_NAME.img
+  sha256sum $RELEASE_NAME.zip > $RELEASE_NAME.zip.sha256sum
+  cd -
+
+  if [ "$BUILD_OTA" = true ]; then
+    sha256sum $STUB_PATH/IMAGES/$TARGET_PRODUCT-target_files-$BUILD_NUMBER.zip > $STUB_PATH/IMAGES/$TARGET_PRODUCT-target_files-$BUILD_NUMBER.zip.sha256sum
+    sha256sum $STUB_PATH/IMAGES/$TARGET_PRODUCT-ota-$BUILD_NUMBER.zip > $STUB_PATH/IMAGES/$TARGET_PRODUCT-ota-$BUILD_NUMBER.zip.sha256sum
+  fi
+
+  INCREMENTAL_UPDATE_FILE=($find $STUB_PATH/IMAGES/Tinker_Board-AndroidN-Incremental-Update-*-from-*.zip)
+  if [[ -n $INCREMENTAL_UPDATE_FILE ]]; then
+    sha256sum $INCREMENTAL_UPDATE_FILE > $INCREMENTAL_UPDATE_FILE.sha256
+  fi
 fi
