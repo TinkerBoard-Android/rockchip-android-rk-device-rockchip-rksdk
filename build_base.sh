@@ -187,8 +187,8 @@ echo "ANDROID:$DEVICE-$BUILD_VARIANT" >> $STUB_PATH/build_cmd_info
     sha256sum $STUB_PATH/IMAGES/$TARGET_PRODUCT-ota-$BUILD_NUMBER.zip > $STUB_PATH/IMAGES/$TARGET_PRODUCT-ota-$BUILD_NUMBER.zip.sha256sum
   fi
 
-  INCREMENTAL_UPDATE_FILE=($find $STUB_PATH/IMAGES/Tinker_Board-AndroidN-Incremental-Update-*-from-*.zip)
-  if [[ -n $INCREMENTAL_UPDATE_FILE ]]; then
+  if [[ -n $PREVIOUS_TARGET_FILES ]]; then
+    INCREMENTAL_UPDATE_FILE=($find $STUB_PATH/IMAGES/Tinker_Board-AndroidN-Incremental-Update-*-from-*.zip)
     sha256sum $INCREMENTAL_UPDATE_FILE > $INCREMENTAL_UPDATE_FILE.sha256sum
   fi
 fi
